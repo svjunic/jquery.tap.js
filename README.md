@@ -11,3 +11,70 @@
 
 * まだ調整中。
 * 迷いながら作っているので、テストがまだない。
+
+
+
+```javascript
+
+$(window).litenTap();
+// or $(window).litenTap( 'tap' );
+
+$('a').on( 'tap', function( e ) {
+  e.preventDefault();
+  // action
+});
+
+
+$('button').on( 'tap', function( e ) {
+  e.preventDefault();
+  // action
+});
+
+// fire
+$('button').on( 'tap.mogeta', function( e ) {
+  e.preventDefault();
+  // action
+});
+
+```
+
+
+```javascript
+
+// limited use
+
+$el = $('div');
+
+$el.listenTap();
+
+$el.find( 'a' ).on( 'tap', function( e ) {
+  e.preventDefault();
+  // action
+});
+
+```
+
+
+```javascript
+
+// namespace event
+
+$el = $('div');
+$el.listenTap( 'tap.mogeta' );
+
+// fire
+$el.find( 'a' ).on( 'tap.mogeta', function( e ) {
+  e.preventDefault();
+  // action
+});
+
+// not fire
+$el.find( 'a' ).on( 'tap', function( e ) {
+  e.preventDefault();
+  // action
+});
+
+
+```
+
+* ネームスペース周りは複数イベント設定した時の動作の実装が追いついてない。
