@@ -24,6 +24,7 @@
         <button type="button" class="add">add tap event</button>
         <button type="button" class="add-namespace">add tap event(namespace)</button>
         <button type="button" class="destroy">destroy tap event</button>
+        <button type="button" class="destroy-namespace">destroy tap event</button>
       </div>
 
       <hr>
@@ -71,14 +72,20 @@
         return;
       });
 
+      $controls.on( 'click', '.destroy-namespace', function( e ){
+        e.preventDefault();
+        $el.listenTapDestroy( 'tap.namespace' );
+        return;
+      });
+
       $dummyButton.on( 'tap', 'button, a', function( e ){
         $target = $( e.target );
-        $log.append( '<p>' + $target.html() + '<\/p>' );
+        $log.prepend( '<p>' + $target.html() + '<\/p>' );
       });
 
       $dummyButton.on( 'tap.namespace', 'button, a', function( e ){
         $target = $( e.target );
-        $log.append( '<p>' + $target.html() + ' Mopgeta Custam Event<\/p>' );
+        $log.prepend( '<p>' + $target.html() + ' Mopgeta Custam Event<\/p>' );
       });
 
     })( window, document, jQuery );

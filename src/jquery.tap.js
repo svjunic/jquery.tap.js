@@ -7,22 +7,65 @@
   "use strict";
 
   /**
-   * カスタムデータの名前
+   * カスタムデータの名前を保存するオブジェクト
    *
    * @type object
    * @private
    * */
-  var DATA = {
-    EVENT_NAME     : 'eventName',
-    IS_TOUCHED     : 'isToudched',
-    IS_TOUCH_MOVED : 'isToudchMoved',
-    TIMESTAMP      : 'touchstartTimestamp',
-  };
+  var DATA = {};
 
   /**
-   * デフォルトのクラス名
+   * カスタムデータ DATA.EVENT_NAME 
    *
-   * @type jQuery.Event
+   * カンマ区切りでイベント名を保存する。
+   * 同名のイベントを登録しようとした場合は追加されず、エラーとなる
+   *
+   * @type string
+   * @private
+   * */
+  DATA.EVENT_NAME     = 'eventName';
+
+  /**
+   * カスタムデータ DATA.IS_TOUCHED
+   *
+   * touchstartが発生したか、していないかのフラグを保存する
+   *
+   * true  : touchstartが発生した
+   * false : touchstartが発生していない
+   *
+   * @type string（jqueryでboolean）
+   * @private
+   * */
+  DATA.IS_TOUCHED     = 'isToudched';
+
+  /**
+   * カスタムデータ DATA.IS_TOUCH_MOVED
+   *
+   * touchstart後にtouchmoveが発生したか、していないかのフラグを保存する
+   *
+   * true  : touchmoveが発生した
+   * false : touchmoveが発生していない
+   *
+   * @type string（jqueryでboolean）
+   * @private
+   * */
+  DATA.IS_TOUCH_MOVED = 'isToudchMoved';
+
+  /**
+   * カスタムデータ DATA.TIMESTAMP
+   *
+   * touchstartが発生した際のタイムスタンプを保存する
+   * このタイムスタンプは、長押し（log tap）時のキャンセル比較に使用
+   *
+   * @type string（jqueryでnumber）
+   * @private
+   * */
+  DATA.TIMESTAMP      = 'touchstartTimestamp';
+
+  /**
+   * デフォルトのイベント
+   *
+   * @type string（jqueryでnumber）
    * @private
    * */
   var DefaultEventName     = 'tap';
@@ -96,12 +139,6 @@
       console.error( e );
     }
 
-    /* TODO
-     * イベントの送出止めちゃうか考え中オプションでもいいけど、ややこしくなる
-     * 止めたくないならwindowでlistenTapすればいいだけだしな・・。
-     * */
-    //$this.on( originalEventName, _eventStopPropagation );
-
     return $this;
   };
 
@@ -113,17 +150,15 @@
    * */
   $.fn.listenTapDestroy = function ( _eventName ) {
 
-    var eventName = _eventName || DefaultEventName;
+    var removeEventName = _eventName || DefaultEventName;
 
     var $this = $(this);
 
-    _removeTapEventListener( $this );
-
-    /* TODO
-     * イベントの送出止めちゃうか考え中オプションでもいいけど、ややこしくなる
-     * 止めたくないならwindowでlistenTapすればいいだけだしな・・。
-     * */
-    // $this.off( originalEventName, _eventStopPropagation );
+    try {
+      _removeTapEventListener( $this, removeEventName );
+    } catch(e) {
+      console.error( e );
+    }
 
     return $this;
   };
@@ -135,8 +170,6 @@
    * @return $(this)
    */
   function _addTapEventListener( $this, eventName ) {
-    // 発火するイベント名の登録
-
     // イベントを追加
     var events, eventsString;
 
@@ -145,27 +178,19 @@
     if( typeof eventsString === 'undefined' ){
       events = [];
       events.push(eventName);
+
+      // add evnetlistener
+      $this.on( 'touchstart touchmove touchend', _onTouchEventListener);
+      $this.on( 'click'                        , _onClickListener );
     } else {
       events = $this.data(DATA.EVENT_NAME).split(',');
       events.push(eventName);
     }
-    eventsString = events.join(',');
 
-    /**
-     * DATA.EVENT_NAME 
-     * xxx,mmmmみたいな感じの,区切りで指定したイベント名を持っている複数指定する場面はレアだと思うけど。
-     */
+    eventsString = events.join(',');
     $this.data( DATA.EVENT_NAME, eventsString );
-   
-    /**
-     * DATA.IS_TOUCHED
-     * true  : touchstartが発生した
-     * false : touchstartが発生していない
-     */
-    $this.data( DATA.IS_TOUCHED, false );
-    
-    $this.on( 'touchstart touchmove touchend', _onTouchEventListener);
-    $this.on( 'click'                        , _onClickListener );
+
+ 
 
     return $this;
   }
@@ -175,21 +200,35 @@
    *
    * @return $(this)
    */
-  function _removeTapEventListener( $this ) {
-    // TODO:複数イベント設定した場合の対応がまだ
-    $this.removeData( DATA.EVENT_NAME );
+  function _removeTapEventListener( $this, removeEventName ) {
 
-    // remove custom data
-    $this.removeData( DATA.IS_TOUCHED );
-    $this.removeData( DATA.IS_TOUCH_MOVED );
-    $this.removeData( DATA.TIMESTAMP );
+    // 登録されているイベントの中から、対象のイベント発火を削除
+    var eventString = $this.data( DATA.EVENT_NAME );
+    var events = eventString.split(',');
+    var removeIndex = events.indexOf( removeEventName );
 
-    // remove event 
-    $this.off( 'touchstart touchmove touchend', _onTouchEventListener);
-    $this.off( 'click'                        , _onClickListener );
+    if( removeIndex === -1 ) {
+      throw 'This event has not been registered.';
+    }
 
-    // clear timerid(logtap)
-    clearTimeout( $this.data( DATA.LONG_TAP_TIMER_ID ) );
+    events.splice( removeIndex, 1 );
+
+    if( events.length === 0 ) {
+      // 指定されているイベントがもうない場合
+      $this.removeData( DATA.EVENT_NAME );
+
+      // remove custom data
+      $this.removeData( DATA.IS_TOUCHED );
+      $this.removeData( DATA.IS_TOUCH_MOVED );
+      $this.removeData( DATA.TIMESTAMP );
+      
+      // remove evnetlistener
+      $this.off( 'touchstart touchmove touchend', _onTouchEventListener);
+      $this.off( 'click'                        , _onClickListener );
+    } else {
+      // 指定されているイベントがまだある場合
+      $this.data( DATA.EVENT_NAME, events.join(',') );
+    }
 
     return $this;
   }
@@ -225,7 +264,7 @@
       }
 
       console.log( 'touchend listener', $currentTarget.data( DATA.EVENT_NAME ), $target );
-      _eventFire( $target, $currentTarget.data( DATA.EVENT_NAME ).split(',') );
+      _eventFire( $target, $currentTarget.data( DATA.EVENT_NAME ) );
     }
   }
 
@@ -247,7 +286,7 @@
     }
 
     console.log( 'click listener', $currentTarget.data( DATA.EVENT_NAME ), $target );
-    _eventFire( $target, $currentTarget.data( DATA.EVENT_NAME ).split(',') );
+    _eventFire( $target, $currentTarget.data( DATA.EVENT_NAME ) );
   }
 
 
@@ -258,12 +297,12 @@
    *
    * @return
    *
-   *
    * TODO 調整するか考え中
    * イベントにnamespaceが付いていた場合の対応が不親切にみえるけど、使用の仕方と割り切るかも。
    * touchendのeventオブジェクト渡すの忘れてる
    * */
-  function _eventFire( $target, events ) {
+  function _eventFire( $target, eventString ) {
+    var events = eventString.split(',');
 
     for( var i=0, max=events.length; max>i; i++ ) {
       $target.trigger( events[i] );
@@ -274,20 +313,5 @@
 
     return;
   }
-
-
-  /**
-   * _eventStopPropagation
-   * 検証の時にノリで書いたけどオプションで残してもいいかなぐらいのノリで作った。
-   * 使っていない。
-   * TODO 仕様決めてから消すか生かすか決める
-   *
-   * @return
-   * */
-  function _eventStopPropagation( e ) {
-    e.stopPropagation();
-    return;
-  }
-
 
 })( window, document, jQuery );
