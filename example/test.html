@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>event.namespace demo</title>
+    <script src="//code.jquery.com/jquery-1.10.2.js"></script>
+  </head>
+  <body>
+
+    <button class="a1">display event.namespace</button>
+    <button class="a2">display event.namespace</button>
+    <p></p>
+
+    <script>
+      $( "p" ).on( "test.something", function( event ) {
+        alert( event.namespace );
+      });
+      $( "button.a1" ).click(function( event ) {
+        $( "p" ).trigger( "test.something" );
+      });
+      $( "button.a2" ).click(function( event ) {
+        $( "p" ).trigger( "test" );
+      });
+    </script>
+
+  </body>
+</html>

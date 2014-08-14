@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <title>jquery.tap.js</title>
+    <style>
+      * {
+        font-size:11px;
+      }
+      section {
+        margin: 50px 0 0 0;
+      }
+      section:first-child {
+        margin:0;
+      }
+    </style>
+  </head>
+  <body>
+
+    <section id="normal">
+      <h1>add tap event</h1>
+      <div class="controls">
+        <button type="button" class="add">add tap event</button>
+        <button type="button" class="add-namespace">add tap event(namespace)</button>
+        <button type="button" class="destroy">destroy tap event</button>
+      </div>
+
+      <hr>
+
+      <div class="dummyButton">
+        <button type="button" class="test1">tap : Button</button>
+        <a href="#">#</a>
+        <a href="#index">#index</a>
+        <a href="http://sv.junic.jp">http://sv.junic.jp</a>
+      </div>
+
+      <hr>
+
+      <div class="log">
+      </div>
+    </section>
+
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    <script src="jquery.tap.min.js"></script>
+    <script>
+    (function( window, document, $ ) {
+
+      var $el          = $( '#normal' );
+      var $controls    = $el.find( '.controls' );
+      var $dummyButton = $el.find( '.dummyButton' );
+      var $log         = $el.find( '.log' );
+
+      $controls.on( 'click', '.add', function( e ){
+        e.preventDefault();
+        $el.find('.dummyButton').listenTap( 'tap' );
+        return;
+      });
+
+      $controls.on( 'click', '.add-namespace', function( e ){
+        e.preventDefault();
+        $el.find('.dummyButton').listenTap( 'tap.namespace' );
+        return;
+      });
+
+      $controls.on( 'click', '.destroy', function(){
+        e.preventDefault();
+        $el.find('.dummyButton').listenTapDestroy( 'tap' );
+        return;
+      });
+
+      $dummyButton.on( 'tap', 'button, a', function( e ){
+        $target = $( e.target );
+        $log.append( '<p>' + $target.html() + '<\/p>' );
+      });
+
+      $dummyButton.on( 'tap.namespace', 'button, a', function( e ){
+        $target = $( e.target );
+        $log.append( '<p>' + $target.html() + ' Mopgeta Custam Event<\/p>' );
+      });
+
+    })( window, document, jQuery );
+    </script>
+  </body>
+</html>
