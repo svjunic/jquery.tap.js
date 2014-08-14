@@ -53,19 +53,21 @@
 
       $controls.on( 'click', '.add', function( e ){
         e.preventDefault();
-        $el.find('.dummyButton').listenTap( 'tap' );
+        $el.listenTap();
+        // or $el.listenTap( 'tap' );
         return;
       });
 
       $controls.on( 'click', '.add-namespace', function( e ){
         e.preventDefault();
-        $el.find('.dummyButton').listenTap( 'tap.namespace' );
+        $el.listenTap( 'tap.namespace' );
         return;
       });
 
-      $controls.on( 'click', '.destroy', function(){
+      $controls.on( 'click', '.destroy', function( e ){
         e.preventDefault();
-        $el.find('.dummyButton').listenTapDestroy( 'tap' );
+        $el.listenTapDestroy();
+        // or $el.listenTapDestroy( 'tap' );
         return;
       });
 

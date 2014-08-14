@@ -6,6 +6,12 @@
 
   "use strict";
 
+  /**
+   * カスタムデータの名前
+   *
+   * @type object
+   * @private
+   * */
   var DATA = {
     EVENT_NAME     : 'eventName',
     IS_TOUCHED     : 'isToudched',
@@ -13,13 +19,46 @@
     TIMESTAMP      : 'touchstartTimestamp',
   };
 
+  /**
+   * デフォルトのクラス名
+   *
+   * @type jQuery.Event
+   * @private
+   * */
+  var DefaultEventName     = 'tap';
 
-  var DefaultEventName = 'tap';
-  var LongTapTime      = 500;
+  /**
+   * 長押しタップの判定に用いる時間
+   *
+   * @type {number} Milliseconds
+   * @private
+   * */
+  var LongTapTime          = 500;
 
+  /**
+   * 使用できないイベント名判定用のRegオブジェクト
+   *
+   * @type {object} Reg
+   * @private
+   * */
   var RegDontUseEventNames = /^(blur|focus|change|select|selectstart|submit|reset|abort|error|load|unload|click|dblclick|keyup|keydown|keypress|mouseout|mouseover|mouseup|mousedown|mousemove|dragdrop|touchstart|touchmove|touchend)/;
-  var RegEventName         = /^[a-zZ-Z0-9]*\.[a-zZ-Z0-9]*$/;
 
+  /**
+   * ネームスペースイベントの判定用
+   * TODO 仕様によっては変更あるかも。
+   *
+   * @type {object} Reg
+   * @private
+   * */
+  var RegEventNameSpace    = /^[a-zZ-Z0-9]*\.[a-zZ-Z0-9]*$/;
+
+
+  /**
+   * jQuery.fn.listenTap
+   *
+   * @type {jQuery.Function}
+   * @method listenTap
+   * */
   $.fn.listenTap = function ( originalEventName ) {
 
     var eventName;
@@ -57,15 +96,35 @@
       console.error( e );
     }
 
-    $this.on( originalEventName, eventStopPropagation );
+    /* TODO
+     * イベントの送出止めちゃうか考え中オプションでもいいけど、ややこしくなる
+     * 止めたくないならwindowでlistenTapすればいいだけだしな・・。
+     * */
+    //$this.on( originalEventName, _eventStopPropagation );
 
     return $this;
   };
 
-  $.fn.listenTapDestroy = function () {
+  /**
+   * jQuery.fn.listenTapDestroy
+   *
+   * @type {jQuery.Function}
+   * @method listenTap
+   * */
+  $.fn.listenTapDestroy = function ( _eventName ) {
+
+    var eventName = _eventName || DefaultEventName;
+
     var $this = $(this);
+
     _removeTapEventListener( $this );
-    $this.off( originalEventName, eventStopPropagation );
+
+    /* TODO
+     * イベントの送出止めちゃうか考え中オプションでもいいけど、ややこしくなる
+     * 止めたくないならwindowでlistenTapすればいいだけだしな・・。
+     * */
+    // $this.off( originalEventName, _eventStopPropagation );
+
     return $this;
   };
 
@@ -92,7 +151,17 @@
     }
     eventsString = events.join(',');
 
+    /**
+     * DATA.EVENT_NAME 
+     * xxx,mmmmみたいな感じの,区切りで指定したイベント名を持っている複数指定する場面はレアだと思うけど。
+     */
     $this.data( DATA.EVENT_NAME, eventsString );
+   
+    /**
+     * DATA.IS_TOUCHED
+     * true  : touchstartが発生した
+     * false : touchstartが発生していない
+     */
     $this.data( DATA.IS_TOUCHED, false );
     
     $this.on( 'touchstart touchmove touchend', _onTouchEventListener);
@@ -107,8 +176,13 @@
    * @return $(this)
    */
   function _removeTapEventListener( $this ) {
-    // remove custom data
+    // TODO:複数イベント設定した場合の対応がまだ
     $this.removeData( DATA.EVENT_NAME );
+
+    // remove custom data
+    $this.removeData( DATA.IS_TOUCHED );
+    $this.removeData( DATA.IS_TOUCH_MOVED );
+    $this.removeData( DATA.TIMESTAMP );
 
     // remove event 
     $this.off( 'touchstart touchmove touchend', _onTouchEventListener);
@@ -156,6 +230,13 @@
   }
 
 
+  /**
+   * _onClickListener
+   * PCで閲覧するときはclickで発火する
+   * touchstartが発火した際のフラグで判断
+   *
+   * @return
+   * */
   function _onClickListener ( e ) {
     var $target = $( e.target );
     var $currentTarget = $( e.currentTarget );
@@ -169,55 +250,43 @@
     _eventFire( $target, $currentTarget.data( DATA.EVENT_NAME ).split(',') );
   }
 
+
+  /**
+   * _eventFire
+   * イベントを発火する
+   * DATA.EVENT_NAMEに保存されているイベントを全て発火させる（予定）
+   *
+   * @return
+   *
+   *
+   * TODO 調整するか考え中
+   * イベントにnamespaceが付いていた場合の対応が不親切にみえるけど、使用の仕方と割り切るかも。
+   * touchendのeventオブジェクト渡すの忘れてる
+   * */
   function _eventFire( $target, events ) {
-/*
-    不要なイベントは発火させない
 
-    イベントの重複を確認
-
-    こっちは問題なし
-
-    tap
-    こっちの場合は、tap.がないか確認する必要あり
-    tap.event
-
-    順番としては、
-    tap.xxxxx.xxxx
-    の場合、前方の
-    tap.xxxxx
-    のイベント
-
-    tap
-    のイベントがないか確認、あれば未実行
-    なければ実行
-
-    このままだと
-    $window にlistenしたあとで
-    $body   にlistenしたら
-    triggerが２回叩かれることになるよね。
-    これでいいのかな・・・。
-
-
-    いや、これでいい。
-    listenTap( '' );
-
-    これで指定したイベントを全て実行するような形のライブラリにしよう
-*/
-
-
-    var reg = /^[a-zZ-Z0-9]*\.[a-zZ-Z0-9]*$/;
-    // namespace 
-    /* TODO イベントにnamespaceが付いていた場合の対応が不親切 */
     for( var i=0, max=events.length; max>i; i++ ) {
       $target.trigger( events[i] );
-      if( !reg.test( events[i] ) ){
+      if( !RegEventNameSpace.test( events[i] ) ){
         console.log( events[i] );
       }
     }
+
+    return;
   }
 
-  function eventStopPropagation( e ) {
+
+  /**
+   * _eventStopPropagation
+   * 検証の時にノリで書いたけどオプションで残してもいいかなぐらいのノリで作った。
+   * 使っていない。
+   * TODO 仕様決めてから消すか生かすか決める
+   *
+   * @return
+   * */
+  function _eventStopPropagation( e ) {
     e.stopPropagation();
+    return;
   }
 
 
