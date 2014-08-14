@@ -16,23 +16,23 @@
 
 ```javascript
 // listen start
-$(window).litenTap();
+$(window).listenTap();
 
 // listen end
-$(window).litenTapDestroy();
+$(window).listenTapDestroy();
 
 
 // event name change.
 // listen start
-$(window).litenTap( 'originalEventName' );
+$(window).listenTap( 'originalEventName' );
 
 // listen end
-$(window).litenTapDestroy( 'originalEventName' );
+$(window).listenTapDestroy( 'originalEventName' );
 ```
 
 ```javascript
-$(window).litenTap();
-// or $(window).litenTap( 'tap' );
+$(window).listenTap();
+// or $(window).listenTap( 'tap' );
 
 $('a').on( 'tap', function( e ) {
   e.preventDefault();
