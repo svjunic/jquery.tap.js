@@ -18,7 +18,7 @@
 // listen start
 $(window).litenTap();
 
-// listen destroy
+// listen end
 $(window).litenTapDestroy();
 
 
@@ -26,7 +26,7 @@ $(window).litenTapDestroy();
 // listen start
 $(window).litenTap( 'originalEventName' );
 
-// listen destroy
+// listen end
 $(window).litenTapDestroy( 'originalEventName' );
 ```
 
