@@ -9,13 +9,28 @@
 全てのリンクに対して実装するような強制するようなライブラリではなく、ゆるい仕様なので、リスナーやハンドラーを付けなければ通常の動作をするだけなので、注意してほしい。
 
 
-* まだ調整中。
-* 迷いながら作っているので、テストがまだない。
+* ネームスペースを使ったlistenTap,listenTapDestroyは実装していない
+* まだ調整中。迷いながら作っているので、テストがまだない。
 
 
 
 ```javascript
+// listen start
+$(window).litenTap();
 
+// listen destroy
+$(window).litenTapDestroy();
+
+
+// event name change.
+// listen start
+$(window).litenTap( 'originalEventName' );
+
+// listen destroy
+$(window).litenTapDestroy( 'originalEventName' );
+```
+
+```javascript
 $(window).litenTap();
 // or $(window).litenTap( 'tap' );
 
@@ -35,12 +50,10 @@ $('button').on( 'tap.mogeta', function( e ) {
   e.preventDefault();
   // action
 });
-
 ```
 
 
 ```javascript
-
 // limited use
 
 $el = $('div');
@@ -51,15 +64,13 @@ $el.find( 'a' ).on( 'tap', function( e ) {
   e.preventDefault();
   // action
 });
-
 ```
 
 
 ```javascript
-
 // namespace event
-
 $el = $('div');
+
 $el.listenTap( 'tap.mogeta' );
 
 // fire
@@ -73,8 +84,5 @@ $el.find( 'a' ).on( 'tap', function( e ) {
   e.preventDefault();
   // action
 });
-
-
 ```
 
-* ネームスペース周りは複数イベント設定した時の動作の実装が追いついてない。
