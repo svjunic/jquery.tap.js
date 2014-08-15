@@ -1,4 +1,4 @@
-// #"Last Change: 11-Aug-2014."
+// #"Last Change: 15-Aug-2014."
 
 var EXAMPLE_ROOT = '../example/';
 var BUILD_ROOT   = '../build/';
@@ -10,6 +10,7 @@ function createJsHeader( info ) {
   jsHeader += '/*\n';
   jsHeader += ' * Last Change: ' + date + '\n';
   jsHeader += ' * @project ' + info.name + '\n';
+  jsHeader += ' * @fileOverview ' + info.fileOverview+ '\n';
   jsHeader += ' * @version ' + info.version + '\n';
   jsHeader += ' * @author ' + info.author + '\n';
   jsHeader += ' * @url ' + info.url + '\n';
@@ -76,10 +77,11 @@ module.exports = function(grunt) {
       build : {
         options: {
           banner: createJsHeader( {
-            name   :'<%= pkg.name %>',
-            version:'<%= pkg.version %>',
-            author :'<%= pkg.author %>',
-            url    :'<%= pkg.url %>'
+            name         : '<%= pkg.name %>',
+            version      : '<%= pkg.version %>',
+            fileOverview : '<%= pkg.fileOverview %>',
+            author       : '<%= pkg.author %>',
+            url          : '<%= pkg.url %>'
           })
         },
         files: [{

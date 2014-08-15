@@ -1,5 +1,5 @@
 /**
- * Copyright 2013, jun fujimura
+ * Copyright 2014, sv.junic@gmail.com
  * The MIT License (MIT)
  */
 (function( window, document, $ ) {

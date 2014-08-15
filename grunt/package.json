@@ -4,8 +4,9 @@
   "build_filename": "jquery.tap.min.js",
   "version": "1.0.0",
   "description": "",
+  "fileOverview": "限定的な領域に対してtap（またはカスタムイベント）を発火する機能を提供します。",
   "author": "sv.junic@gmail.com",
-  "url": "https://github.com/svjunic/jquery.tap.js.git",
+  "url": "https://github.com/svjunic/jquery.tap.js",
   "scripts": {
     "start": "grunt"
   },
