@@ -6,6 +6,8 @@
 
   "use strict";
 
+  var __DEBUG__ = false;
+
   /**
    * カスタムデータの名前を保存するオブジェクト
    *
@@ -136,7 +138,7 @@
 
       _addTapEventListener( $this, eventName );
     } catch(e) {
-      console.error( e );
+      if( __DEBUG__ ) console.error( e );
     }
 
     return $this;
@@ -157,7 +159,7 @@
     try {
       _removeTapEventListener( $this, removeEventName );
     } catch(e) {
-      console.error( e );
+      if( __DEBUG__ ) console.error( e );
     }
 
     return $this;
@@ -253,17 +255,17 @@
     if( e.type === 'touchend' ) {
       // is touch moved
       if( $currentTarget.data( DATA.IS_TOUCH_MOVED ) ) {
-        console.log( 'touch moved' );
+        if( __DEBUG__ ) console.log( 'touch moved' );
         return;
       }
 
       // is long tap
       if(  e.timeStamp - $currentTarget.data( DATA.TIMESTAMP ) > LongTapTime  ) {
-        console.log( 'long tap' );
+        if( __DEBUG__ ) console.log( 'long tap' );
         return;
       }
 
-      console.log( 'touchend listener', $currentTarget.data( DATA.EVENT_NAME ), $target );
+      if( __DEBUG__ ) console.log( 'touchend listener', $currentTarget.data( DATA.EVENT_NAME ), $target );
       _eventFire( $target, $currentTarget.data( DATA.EVENT_NAME ) );
     }
   }
@@ -285,7 +287,7 @@
       return;
     }
 
-    console.log( 'click listener', $currentTarget.data( DATA.EVENT_NAME ), $target );
+    if( __DEBUG__ ) console.log( 'click listener', $currentTarget.data( DATA.EVENT_NAME ), $target );
     _eventFire( $target, $currentTarget.data( DATA.EVENT_NAME ) );
   }
 
@@ -307,7 +309,7 @@
     for( var i=0, max=events.length; max>i; i++ ) {
       $target.trigger( events[i] );
       if( !RegEventNameSpace.test( events[i] ) ){
-        console.log( events[i] );
+        if( __DEBUG__ ) console.log( events[i] );
       }
     }
 
