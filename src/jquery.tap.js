@@ -11,6 +11,14 @@
   /**
    * カスタムデータの名前を保存するオブジェクト
    *
+   * @type jQueryObject
+   * @private
+   * */
+  var $document = $(document);
+
+  /**
+   * カスタムデータの名前を保存するオブジェクト
+   *
    * @type object
    * @private
    * */
@@ -240,6 +248,8 @@
     var $target = $( e.target );
     var $currentTarget = $( e.currentTarget );
 
+    $document.off( 'click', _onClickEventOnceThroughListener );
+
     if( e.type === 'touchstart' ) {
       $currentTarget.data( DATA.IS_TOUCHED    , true );
       $currentTarget.data( DATA.IS_TOUCH_MOVED, false );
@@ -267,6 +277,21 @@
 
       if( __DEBUG__ ) console.log( 'touchend listener', $currentTarget.data( DATA.EVENT_NAME ), $target );
       _eventFire( $target, $currentTarget.data( DATA.EVENT_NAME ) );
+      $document.one( 'click', {$target:$target}, _onClickEventOnceThroughListener );
+    }
+  }
+
+
+  /**
+   * _onClickEventOnceThroughListener
+   * タップした後直後にクリックイベントが発火した場合、同じエレメントからの発火でなければパブリングを止めて動作も行わない
+   *
+   * @return
+   * */
+  function _onClickEventOnceThroughListener( e ) {
+    if( e.data.$target.get(0) !== e.target ) {
+      e.preventDefault();
+      e.stopPropagation();
     }
   }
 
