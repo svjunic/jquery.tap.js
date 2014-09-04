@@ -244,7 +244,6 @@
   }
 
   function _onTouchEventListener ( e ) {
-
     var $target = $( e.target );
     var $currentTarget = $( e.currentTarget );
 
@@ -285,7 +284,7 @@
   /**
    * _onClickEventOnceThroughListener
    * タップした後直後にクリックイベントが発火した場合、同じエレメントからの発火でなければパブリングを止めて動作も行わない
-   *
+   * TODO 
    * @return
    * */
   function _onClickEventOnceThroughListener( e ) {
