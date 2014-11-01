@@ -261,7 +261,7 @@
     var $target = $( e.target );
     var $currentTarget = $( e.currentTarget );
 
-    console.log( e.type, $target );
+    if( __DEBUG__ ) console.log( e.type, $target );
 
     $document.on( 'click', {$target:$target}, __onClickEventThroughListener );
 
@@ -310,9 +310,10 @@
    * */
   function _clickEventOnceThrough( $target ) {
     $document.one( 'click', {$target:$target}, __onClickEventThroughListener );
+    if( __DEBUG__ ) console.log('on click throuth. 300ms.');
     clearTimeout( ClickThroughTimerId );
     ClickThroughTimerId = setTimeout(function() {
-      console.log('clear');
+      if( __DEBUG__ ) console.log('off click throuth. 300ms.');
       $document.off( 'click', __onClickEventThroughListener );
     }, 350 );
   }
