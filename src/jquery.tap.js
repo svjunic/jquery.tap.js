@@ -1,6 +1,12 @@
 /**
  * Copyright 2014, sv.junic@gmail.com
  * The MIT License (MIT)
+ *
+ * リスナー作成
+ * $.fn.listenTap
+ *
+ * リスナー削除
+ * $.fn.listenTapDestroy
  */
 (function( window, document, $ ) {
 
@@ -11,7 +17,7 @@
   /**
    * カスタムデータの名前を保存するオブジェクト
    *
-   * @type jQueryObject
+   * @type {jQueryObject} documentのjQueryオブジェクト
    * @private
    * */
   var $document = $(document);
@@ -19,55 +25,55 @@
   /**
    * カスタムデータの名前を保存するオブジェクト
    *
-   * @type object
+   * @type {object} 
    * @private
    * */
   var DATA = {};
 
   /**
-   * カスタムデータ DATA.EVENT_NAME 
+   * カスタムデータ名 DATA.EVENT_NAME 
    *
    * カンマ区切りでイベント名を保存する。
    * 同名のイベントを登録しようとした場合は追加されず、エラーとなる
    *
-   * @type string
+   * @type {string}
    * @private
    * */
   DATA.EVENT_NAME     = 'eventName';
 
   /**
-   * カスタムデータ DATA.IS_TOUCHED
+   * カスタムデータ名 DATA.IS_TOUCHED
    *
    * touchstartが発生したか、していないかのフラグを保存する
    *
    * true  : touchstartが発生した
    * false : touchstartが発生していない
    *
-   * @type string（jqueryでboolean）
+   * @type {string} (jqueryでboolean)
    * @private
    * */
   DATA.IS_TOUCHED     = 'isToudched';
 
   /**
-   * カスタムデータ DATA.IS_TOUCH_MOVED
+   * カスタムデータ名 DATA.IS_TOUCH_MOVED
    *
    * touchstart後にtouchmoveが発生したか、していないかのフラグを保存する
    *
    * true  : touchmoveが発生した
    * false : touchmoveが発生していない
    *
-   * @type string（jqueryでboolean）
+   * @type {string} (jqueryでboolean）
    * @private
    * */
   DATA.IS_TOUCH_MOVED = 'isToudchMoved';
 
   /**
-   * カスタムデータ DATA.TIMESTAMP
+   * カスタムデータ名 DATA.TIMESTAMP
    *
    * touchstartが発生した際のタイムスタンプを保存する
    * このタイムスタンプは、長押し（log tap）時のキャンセル比較に使用
    *
-   * @type string（jqueryでnumber）
+   * @type {string} (jqueryでnumber）
    * @private
    * */
   DATA.TIMESTAMP      = 'touchstartTimestamp';
@@ -75,7 +81,7 @@
   /**
    * デフォルトのイベント
    *
-   * @type string（jqueryでnumber）
+   * @type {string} (jqueryでnumber）
    * @private
    * */
   var DefaultEventName     = 'tap';
@@ -87,6 +93,14 @@
    * @private
    * */
   var LongTapTime          = 500;
+
+  /**
+   * 300msだけクリックイベントを無効にする際に使用するタイマー
+   *
+   * @type {number} TimerId(setTimeout)
+   * @private
+   * */
+  var ClickThroughTimerId;
 
   /**
    * 使用できないイベント名判定用のRegオブジェクト
@@ -190,8 +204,8 @@
       events.push(eventName);
 
       // add evnetlistener
-      $this.on( 'touchstart touchmove touchend', _onTouchEventListener);
-      $this.on( 'click'                        , _onClickListener );
+      $this.on( 'touchstart touchmove touchend', __onTouchEventListener );
+      $this.on( 'click'                        , __onClickListener );
     } else {
       events = $this.data(DATA.EVENT_NAME).split(',');
       events.push(eventName);
@@ -233,8 +247,8 @@
       $this.removeData( DATA.TIMESTAMP );
       
       // remove evnetlistener
-      $this.off( 'touchstart touchmove touchend', _onTouchEventListener);
-      $this.off( 'click'                        , _onClickListener );
+      $this.off( 'touchstart touchmove touchend', __onTouchEventListener );
+      $this.off( 'click'                        , __onClickListener );
     } else {
       // 指定されているイベントがまだある場合
       $this.data( DATA.EVENT_NAME, events.join(',') );
@@ -243,21 +257,25 @@
     return $this;
   }
 
-  function _onTouchEventListener ( e ) {
+  function __onTouchEventListener ( e ) {
     var $target = $( e.target );
     var $currentTarget = $( e.currentTarget );
 
-    $document.off( 'click', _onClickEventOnceThroughListener );
+    console.log( e.type, $target );
+
+    $document.on( 'click', {$target:$target}, __onClickEventThroughListener );
 
     if( e.type === 'touchstart' ) {
       $currentTarget.data( DATA.IS_TOUCHED    , true );
       $currentTarget.data( DATA.IS_TOUCH_MOVED, false );
       $currentTarget.data( DATA.TIMESTAMP     , e.timeStamp );
+      $document.off( 'click', __onClickEventThroughListener );
       return;
     }
 
     if( e.type === 'touchmove' ) {
       $currentTarget.data( DATA.IS_TOUCH_MOVED, true );
+      $document.off( 'click', __onClickEventThroughListener );
       return;
     }
 
@@ -265,29 +283,47 @@
       // is touch moved
       if( $currentTarget.data( DATA.IS_TOUCH_MOVED ) ) {
         if( __DEBUG__ ) console.log( 'touch moved' );
+        $document.off( 'click', __onClickEventThroughListener );
         return;
       }
 
       // is long tap
       if(  e.timeStamp - $currentTarget.data( DATA.TIMESTAMP ) > LongTapTime  ) {
         if( __DEBUG__ ) console.log( 'long tap' );
+        $document.off( 'click', __onClickEventThroughListener );
         return;
       }
 
       if( __DEBUG__ ) console.log( 'touchend listener', $currentTarget.data( DATA.EVENT_NAME ), $target );
       _eventFire( $target, $currentTarget.data( DATA.EVENT_NAME ) );
-      $document.one( 'click', {$target:$target}, _onClickEventOnceThroughListener );
+      $document.off( 'click', __onClickEventThroughListener );
+      _clickEventOnceThrough( $target );
     }
   }
 
 
   /**
-   * _onClickEventOnceThroughListener
+   * __onClickEventOnceThroughListener
    * タップした後直後にクリックイベントが発火した場合、同じエレメントからの発火でなければパブリングを止めて動作も行わない
-   * TODO 
+   * TODO : 300msまでclickのリスナーを受け取り、300ms以降は受け取りを解除
    * @return
    * */
-  function _onClickEventOnceThroughListener( e ) {
+  function _clickEventOnceThrough( $target ) {
+    $document.one( 'click', {$target:$target}, __onClickEventThroughListener );
+    clearTimeout( ClickThroughTimerId );
+    ClickThroughTimerId = setTimeout(function() {
+      console.log('clear');
+      $document.off( 'click', __onClickEventThroughListener );
+    }, 350 );
+  }
+
+  /**
+   * __onClickEventOnceThroughListener
+   * タップした後直後にクリックイベントが発火した場合、同じエレメントからの発火でなければパブリングを止めて動作も行わない
+   * TODO : 300msまでclickのリスナーを受け取り、300ms以降は受け取りを解除
+   * @return
+   * */
+  function __onClickEventOnceThroughListener( e ) {
     if( e.data.$target.get(0) !== e.target ) {
       e.preventDefault();
       e.stopPropagation();
@@ -296,13 +332,25 @@
 
 
   /**
-   * _onClickListener
+   * __onClickEventThroughListener
+   * タップした後直後にクリックイベントが発火した場合、同じエレメントからの発火でなければパブリングを止めて動作も行わない
+   * TODO : 300msまでclickのリスナーを受け取り、300ms以降は受け取りを解除
+   * @return
+   * */
+  function __onClickEventThroughListener( e ) {
+    e.preventDefault();
+    e.stopPropagation();
+  }
+
+
+  /**
+   * __onClickListener
    * PCで閲覧するときはclickで発火する
    * touchstartが発火した際のフラグで判断
    *
    * @return
    * */
-  function _onClickListener ( e ) {
+  function __onClickListener ( e ) {
     var $target = $( e.target );
     var $currentTarget = $( e.currentTarget );
 
