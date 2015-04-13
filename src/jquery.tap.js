@@ -257,8 +257,6 @@
 
     if( __DEBUG__ ) console.log( e.type, $target );
 
-    $document.on( 'click', {$target:$target}, __onClickEventThroughListener );
-
     if( e.type === 'touchstart' ) {
       $currentTarget.data( DATA.IS_TOUCHED    , true );
       $currentTarget.data( DATA.IS_TOUCH_MOVED, false );
