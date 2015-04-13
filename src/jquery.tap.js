@@ -2,11 +2,13 @@
  * Copyright 2014, sv.junic@gmail.com
  * The MIT License (MIT)
  *
- * リスナー作成
- * $.fn.listenTap
+ * @fileOverview jquery.tap.js
  *
- * リスナー削除
- * $.fn.listenTapDestroy
+ * // リスナー作成
+ * $.fn.listenTap( EventName )
+ *
+ * //リスナー削除
+ * $.fn.listenTapDestroy( EventName )
  */
 (function( window, document, $ ) {
 

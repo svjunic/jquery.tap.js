@@ -2,7 +2,7 @@
   "name": "jquery.tap.js",
   "src_filename": "jquery.tap.js",
   "build_filename": "jquery.tap.min.js",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "",
   "fileOverview": "限定的な領域に対してtap（またはカスタムイベント）を発火する機能を提供します。",
   "author": "sv.junic@gmail.com",
