@@ -1,94 +1,273 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width">
-    <title>jquery.tap.js</title>
-    <style>
-      * {
-        font-size:11px;
-      }
-      section {
-        margin: 50px 0 0 0;
-      }
-      section:first-child {
-        margin:0;
-      }
-    </style>
-  </head>
-  <body>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width">
+<title>jquery.tap.js</title>
+<style>
+  * {
+    font-size:11px;
+  }
+  section {
+    margin: 50px 0 0 0;
+    min-height: 300px;
+  }
+  section:first-child {
+    margin:0;
+  }
+  .stage {
+    padding: 10px;
+    background: #ccc;
+  }
+  .stage div {
+    height: 3em;
+  }
+  .log {
+    width: 100%;
+    margin-top: 1em;
+    border: 1px solid #ccc;
+    margin: 0;
+    font-size: 50%;
+    line-height: 1.2em;
+  }
+  .log {
+    height: 10em;
+    overflow-y: scroll;
+  }
+  code {
+    background: #ccc;
+    height: 5em;
+    overflow-y: scroll;
+  }
+  .position-block {
+    position: relative;
+    height: 1em;
+  }
+  .position-block a {
+    position: absolute;
+    top:0;
+    left:0;
 
-    <section id="normal">
-      <h1>add tap event</h1>
-      <div class="controls">
-        <button type="button" class="add">add tap event</button>
-        <button type="button" class="add-namespace">add tap event(namespace)</button>
-        <button type="button" class="destroy">destroy tap event</button>
-        <button type="button" class="destroy-namespace">destroy tap event</button>
+    width: 100%;
+    height: 1em;
+  }
+  .hide {
+    display:none;
+  }
+</style>
+</head>
+<body>
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+<script src="jquery.tap.min.js"></script>
+
+<div>
+  <section id="normal">
+    <h1>listenTap()</h1>
+    <!-- <div class="controls">
+      <button type="button" class="add">add tap event</button>
+      <button type="button" class="add-namespace">add tap event(namespace)</button>
+      <button type="button" class="destroy">destroy tap event</button>
+      <button type="button" class="destroy-namespace">destroy tap event</button>
+    </div> -->
+
+    <div class="stage">
+      <div><button type="button">Tap</button></div>
+      <div><a class="standard" href="/">Tap(href "/")</div>
+      <div><a class="notlink">Tap(href none)</a></div>
+      <div class="position-block">
+        <a class="splink">Tap + change dom</a>
+        <a class="splink2 hide" href="/">No click!</a>
       </div>
+    </div>
+    <a href="/">moge</a>
+    <p>log</p>
+    <div class="log">
+      <table>
+        <thead>
+          <th>EventType</th>
+          <th>Event.currentTargetText</th>
+          <th>Time</th>
+          <th>TargetElemnet</th>
+        </thead>
+        <tbody>
+        </tbody>
+      </table>
+    </div>
+    <code>
+    </code>
+    <script src="js/example1.js"></script>
+  </section>
+  
+  <hr>
+  
+  <section id="extendEvent">
+    <h1>listenTap(eventName)</h1>
+    <div class="controls">
+      <button type="button" class="add">add tap event</button>
+      <button type="button" class="add-namespace">add tap event(namespace)</button>
+      <button type="button" class="destroy">destroy tap event</button>
+      <button type="button" class="destroy-namespace">destroy tap event</button>
+    </div>
+    <div class="log">
+    </div>
+  </section>
+  
+  <hr>
+  
+  <section id="listenDestory">
+    <h1>listenTapDestroy()</h1>
+    <div class="controls">
+      <button type="button" class="add">add tap event</button>
+      <button type="button" class="add-namespace">add tap event(namespace)</button>
+      <button type="button" class="destroy">destroy tap event</button>
+      <button type="button" class="destroy-namespace">destroy tap event</button>
+    </div>
+    <div class="log">
+    </div>
+  </section>
+</div>
 
-      <hr>
+<!-- Usually, read script into between jquery and </body>tag -->
+<!-- <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script> -->
+<!-- <script src="jquery.tap.min.js"></script> -->
 
-      <div class="dummyButton">
-        <button type="button" class="test1">tap : Button</button>
-        <a href="#">#</a>
-        <a href="#index">#index</a>
-        <a href="http://sv.junic.jp">http://sv.junic.jp</a>
-      </div>
+<script>
+  (function( window, document, $ ) {
+  })( window, document, jQuery );
+</script>
+<script>
+//  (function( window, document, $ ) {
+//
+//    var $el          = $( '#normal' );
+//    var $controls    = $el.find( '.controls' );
+//    var $dummyButton = $el.find( '.dummyButton' );
+//    var $log         = $el.find( '.log' );
+//
+//    $controls.on( 'click', '.add', function( e ){
+//      e.preventDefault();
+//      $el.listenTap();
+//      // or $el.listenTap( 'tap' );
+//      return;
+//    });
+//
+//    $controls.on( 'click', '.add-namespace', function( e ){
+//      e.preventDefault();
+//      $el.listenTap( 'tap.namespace' );
+//      return;
+//    });
+//
+//    $controls.on( 'click', '.destroy', function( e ){
+//      e.preventDefault();
+//      $el.listenTapDestroy();
+//      // or $el.listenTapDestroy( 'tap' );
+//      return;
+//    });
+//
+//    $controls.on( 'click', '.destroy-namespace', function( e ){
+//      e.preventDefault();
+//      $el.listenTapDestroy( 'tap.namespace' );
+//      return;
+//    });
+//
+//    $dummyButton.on( 'tap', 'button, a', function( e ){
+//      $target = $( e.target );
+//      $log.prepend( '<p>' + $target.html() + '<\/p>' );
+//    });
+//
+//    $dummyButton.on( 'tap.namespace', 'button, a', function( e ){
+//      $target = $( e.target );
+//      $log.prepend( '<p>' + $target.html() + ' Mopgeta Custam Event<\/p>' );
+//    });
+//
+//  })( window, document, jQuery );
+</script>
+</body>
+</html>
+      <a></a>
+    </div>
+    <code>
+    </code>
+  </section>
+  
+  <hr>
+  
+  <section id="extendEvent">
+    <h1>listenTap(eventName)</h1>
+    <div class="controls">
+      <button type="button" class="add">add tap event</button>
+      <button type="button" class="add-namespace">add tap event(namespace)</button>
+      <button type="button" class="destroy">destroy tap event</button>
+      <button type="button" class="destroy-namespace">destroy tap event</button>
+    </div>
+    <div class="log">
+    </div>
+  </section>
+  
+  <hr>
+  
+  <section id="listenDestory">
+    <h1>listenTapDestroy()</h1>
+    <div class="controls">
+      <button type="button" class="add">add tap event</button>
+      <button type="button" class="add-namespace">add tap event(namespace)</button>
+      <button type="button" class="destroy">destroy tap event</button>
+      <button type="button" class="destroy-namespace">destroy tap event</button>
+    </div>
+    <div class="log">
+    </div>
+  </section>
+</div>
 
-      <hr>
+<!-- Usually, read script into between jquery and </body>tag -->
+<!-- <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script> -->
+<!-- <script src="jquery.tap.min.js"></script> -->
 
-      <div class="log">
-      </div>
-    </section>
-
-    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
-    <script src="jquery.tap.min.js"></script>
-    <script>
-    (function( window, document, $ ) {
-
-      var $el          = $( '#normal' );
-      var $controls    = $el.find( '.controls' );
-      var $dummyButton = $el.find( '.dummyButton' );
-      var $log         = $el.find( '.log' );
-
-      $controls.on( 'click', '.add', function( e ){
-        e.preventDefault();
-        $el.listenTap();
-        // or $el.listenTap( 'tap' );
-        return;
-      });
-
-      $controls.on( 'click', '.add-namespace', function( e ){
-        e.preventDefault();
-        $el.listenTap( 'tap.namespace' );
-        return;
-      });
-
-      $controls.on( 'click', '.destroy', function( e ){
-        e.preventDefault();
-        $el.listenTapDestroy();
-        // or $el.listenTapDestroy( 'tap' );
-        return;
-      });
-
-      $controls.on( 'click', '.destroy-namespace', function( e ){
-        e.preventDefault();
-        $el.listenTapDestroy( 'tap.namespace' );
-        return;
-      });
-
-      $dummyButton.on( 'tap', 'button, a', function( e ){
-        $target = $( e.target );
-        $log.prepend( '<p>' + $target.html() + '<\/p>' );
-      });
-
-      $dummyButton.on( 'tap.namespace', 'button, a', function( e ){
-        $target = $( e.target );
-        $log.prepend( '<p>' + $target.html() + ' Mopgeta Custam Event<\/p>' );
-      });
-
-    })( window, document, jQuery );
-    </script>
-  </body>
+<script>
+//  (function( window, document, $ ) {
+//
+//    var $el          = $( '#normal' );
+//    var $controls    = $el.find( '.controls' );
+//    var $dummyButton = $el.find( '.dummyButton' );
+//    var $log         = $el.find( '.log' );
+//
+//    $controls.on( 'click', '.add', function( e ){
+//      e.preventDefault();
+//      $el.listenTap();
+//      // or $el.listenTap( 'tap' );
+//      return;
+//    });
+//
+//    $controls.on( 'click', '.add-namespace', function( e ){
+//      e.preventDefault();
+//      $el.listenTap( 'tap.namespace' );
+//      return;
+//    });
+//
+//    $controls.on( 'click', '.destroy', function( e ){
+//      e.preventDefault();
+//      $el.listenTapDestroy();
+//      // or $el.listenTapDestroy( 'tap' );
+//      return;
+//    });
+//
+//    $controls.on( 'click', '.destroy-namespace', function( e ){
+//      e.preventDefault();
+//      $el.listenTapDestroy( 'tap.namespace' );
+//      return;
+//    });
+//
+//    $dummyButton.on( 'tap', 'button, a', function( e ){
+//      $target = $( e.target );
+//      $log.prepend( '<p>' + $target.html() + '<\/p>' );
+//    });
+//
+//    $dummyButton.on( 'tap.namespace', 'button, a', function( e ){
+//      $target = $( e.target );
+//      $log.prepend( '<p>' + $target.html() + ' Mopgeta Custam Event<\/p>' );
+//    });
+//
+//  })( window, document, jQuery );
+</script>
+</body>
 </html>

@@ -95,14 +95,6 @@
   var LongTapTime          = 500;
 
   /**
-   * 300msだけクリックイベントを無効にする際に使用するタイマー
-   *
-   * @type {number} TimerId(setTimeout)
-   * @private
-   * */
-  var ClickThroughTimerId;
-
-  /**
    * 使用できないイベント名判定用のRegオブジェクト
    *
    * @type {object} Reg
@@ -269,13 +261,11 @@
       $currentTarget.data( DATA.IS_TOUCHED    , true );
       $currentTarget.data( DATA.IS_TOUCH_MOVED, false );
       $currentTarget.data( DATA.TIMESTAMP     , e.timeStamp );
-      $document.off( 'click', __onClickEventThroughListener );
       return;
     }
 
     if( e.type === 'touchmove' ) {
       $currentTarget.data( DATA.IS_TOUCH_MOVED, true );
-      $document.off( 'click', __onClickEventThroughListener );
       return;
     }
 
@@ -283,66 +273,19 @@
       // is touch moved
       if( $currentTarget.data( DATA.IS_TOUCH_MOVED ) ) {
         if( __DEBUG__ ) console.log( 'touch moved' );
-        $document.off( 'click', __onClickEventThroughListener );
         return;
       }
 
       // is long tap
       if(  e.timeStamp - $currentTarget.data( DATA.TIMESTAMP ) > LongTapTime  ) {
         if( __DEBUG__ ) console.log( 'long tap' );
-        $document.off( 'click', __onClickEventThroughListener );
         return;
       }
 
       if( __DEBUG__ ) console.log( 'touchend listener', $currentTarget.data( DATA.EVENT_NAME ), $target );
       _eventFire( $target, $currentTarget.data( DATA.EVENT_NAME ) );
-      $document.off( 'click', __onClickEventThroughListener );
-      _clickEventOnceThrough( $target );
     }
   }
-
-
-  /**
-   * __onClickEventOnceThroughListener
-   * タップした後直後にクリックイベントが発火した場合、同じエレメントからの発火でなければパブリングを止めて動作も行わない
-   * TODO : 300msまでclickのリスナーを受け取り、300ms以降は受け取りを解除
-   * @return
-   * */
-  function _clickEventOnceThrough( $target ) {
-    $document.one( 'click', {$target:$target}, __onClickEventThroughListener );
-    if( __DEBUG__ ) console.log('on click throuth. 300ms.');
-    clearTimeout( ClickThroughTimerId );
-    ClickThroughTimerId = setTimeout(function() {
-      if( __DEBUG__ ) console.log('off click throuth. 300ms.');
-      $document.off( 'click', __onClickEventThroughListener );
-    }, 350 );
-  }
-
-  /**
-   * __onClickEventOnceThroughListener
-   * タップした後直後にクリックイベントが発火した場合、同じエレメントからの発火でなければパブリングを止めて動作も行わない
-   * TODO : 300msまでclickのリスナーを受け取り、300ms以降は受け取りを解除
-   * @return
-   * */
-  function __onClickEventOnceThroughListener( e ) {
-    if( e.data.$target.get(0) !== e.target ) {
-      e.preventDefault();
-      e.stopPropagation();
-    }
-  }
-
-
-  /**
-   * __onClickEventThroughListener
-   * タップした後直後にクリックイベントが発火した場合、同じエレメントからの発火でなければパブリングを止めて動作も行わない
-   * TODO : 300msまでclickのリスナーを受け取り、300ms以降は受け取りを解除
-   * @return
-   * */
-  function __onClickEventThroughListener( e ) {
-    e.preventDefault();
-    e.stopPropagation();
-  }
-
 
   /**
    * __onClickListener
@@ -372,7 +315,6 @@
    *
    * @return
    *
-   * TODO 調整するか考え中
    * イベントにnamespaceが付いていた場合の対応が不親切にみえるけど、使用の仕方と割り切るかも。
    * touchendのeventオブジェクト渡すの忘れてる
    * */
